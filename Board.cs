@@ -195,12 +195,14 @@ public class Board : MonoBehaviour
             Debug.Log("hello");
             if (AsidePiece.data.cells == null) 
             {
+
                 AsidePiece.Initialize(activePiece.data);
-                Clear(activePiece);
+                SpawnPiece(previewPiece.data);
             } else {
+                Piece temp = activePiece;
                 Clear(activePiece);
                 SpawnPiece(AsidePiece.GetBackPiece());
-                AsidePiece.Initialize(activePiece.data);
+                AsidePiece.Initialize(temp.data);
 
 
             }
