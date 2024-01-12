@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
-
+using System.Collections;
+using System.Collections.Generic;
 public class Board : MonoBehaviour
 {
     public Tilemap tilemap { get; private set; } // Tilemap pour afficher les pi�ces.
@@ -18,7 +19,7 @@ public class Board : MonoBehaviour
     public Vector3Int spawnPosition = new Vector3Int(-1, 8, 0);
 
     // Calcul des limites du plateau de jeu.
-    public RectInt Bounds
+    public RectInt Bounds   
     {
         get
         {
@@ -62,17 +63,23 @@ public class Board : MonoBehaviour
     }
 
     // Methode pour envoyer la piece de la preview dans le jeu
-    public void SpawnPiece(TetrominoData piece)
+    public void SpawnPiece(TetrominoData piece, bool reserve = false,int posY=8)
     {
         int randomX = Random.Range(boardSize.x - 14, boardSize.x - 7);
         spawnPosition.x = randomX;
+        
+        spawnPosition.y=posY;
 
         // On initialise une nouvelle piece en jeu et crée une nouvelle pièce en preview
         activePiece.Initialize(this, piece, spawnPosition);
-        CreatePiece();
+        
+        //Permetr de gérer le cas où on spawn une pièce depuis la reserve
+        if (!reserve) 
+            CreatePiece();
+        
 
         // Verifier si la position de spawn est valide, sinon terminer le jeu.
-        if (IsValidPosition(activePiece, spawnPosition))
+        if (IsValidPosition(activePiece.cells, spawnPosition))
         {
             Set(activePiece);
         }
@@ -86,6 +93,9 @@ public class Board : MonoBehaviour
     public void GameOver()
     {
         tilemap.ClearAllTiles();
+        //score.SendMessage("RestartScore")
+        AsidePiece.ClearBackPiece();
+        AsidePiece.ResetData();
     }
 
     // M�thode pour placer une pi�ce sur le plateau.
@@ -109,13 +119,13 @@ public class Board : MonoBehaviour
     }
 
     // V�rifier si une position est valide pour placer une pi�ce.
-    public bool IsValidPosition(Piece piece, Vector3Int position)
+    public bool IsValidPosition(Vector3Int[] cells, Vector3Int position)
     {
         RectInt bounds = Bounds;
 
-        for (int i = 0; i < piece.cells.Length; i++)
+        for (int i = 0; i < cells.Length; i++)
         {
-            Vector3Int tilePosition = piece.cells[i] + position;
+            Vector3Int tilePosition = cells[i] + position;
 
             // V�rifier si la position est hors limites ou occup�e.
             if (!bounds.Contains((Vector2Int)tilePosition) || tilemap.HasTile(tilePosition))
@@ -189,25 +199,38 @@ public class Board : MonoBehaviour
             row++;
         }
     }
-    void Update(){
-        if (Input.GetKeyDown(KeyCode.C) )
+    private bool canUseFunction = true;
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.C) && canUseFunction)
         {
-            Debug.Log("hello");
-            if (AsidePiece.data.cells == null) 
+            Clear(activePiece);
+
+            if (AsidePiece.data.cells == null)
             {
-
-                AsidePiece.Initialize(activePiece.data);
-                SpawnPiece(previewPiece.data);
-            } else {
-                Piece temp = activePiece;
-                Clear(activePiece);
-                SpawnPiece(AsidePiece.GetBackPiece());
-                AsidePiece.Initialize(temp.data);
-
-
+                AsidePiece.Initialize(activePiece.data, activePiece.position.y);
+                SpawnPiece(previewPiece.data, false, activePiece.position.y);
+                StartCoroutine(DisableFunctionForSeconds(2.0f));
             }
-
-
+            else if (IsValidPosition(AsidePiece.cells, activePiece.position ))//permet de vérifier si la piece actuel peux-etre remplacer par la piece du stockage
+            {
+                TetrominoData temp = AsidePiece.data;
+                AsidePiece.ClearBackPiece();
+                AsidePiece.Initialize(activePiece.data, activePiece.position.y);
+                SpawnPiece(temp, true, activePiece.position.y);
+                StartCoroutine(DisableFunctionForSeconds(2.0f));
+            }
         }
+    }
+
+    private IEnumerator DisableFunctionForSeconds(float disableTime)
+    {
+        canUseFunction = false;
+
+        yield return new WaitForSeconds(disableTime);
+
+        canUseFunction = true;
+        Debug.Log("vous pouvez réutiliser le stockage");
     }
 }

@@ -7,15 +7,17 @@ public class PutAside : MonoBehaviour
     public Tilemap tilemap { get; private set; }
     public TetrominoData data { get; private set; }
     public Vector3Int[] cells { get; private set; }
+    private int posY;
     // Start is called before the first frame update
     void Start()
     {
         tilemap = GetComponentInChildren<Tilemap>();   
     }
 
-   public void Initialize(TetrominoData data)
+   public void Initialize(TetrominoData data, int posY)
     {
         this.data = data;
+        this.posY = posY;
 
         if (cells == null)
         {
@@ -31,11 +33,24 @@ public class PutAside : MonoBehaviour
             tilemap.SetTile(cells[i], data.tile);
         }
     }
+    public void ResetData()
+    {
+        data = new TetrominoData();//remet les data a null
+        this.posY = 0;
 
-    public TetrominoData GetBackPiece()
+    if (cells != null)
+    {
+        for (int i = 0; i < cells.Length; i++)
+        {
+            tilemap.SetTile(cells[i], null);
+        }
+        cells = null;
+    }
+
+    public int ClearBackPiece()
     {
         tilemap.ClearAllTiles();
-        
-        return data;
+        return this.posY;
     }
+
 }

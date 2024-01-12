@@ -145,7 +145,7 @@ public class Piece : MonoBehaviour
         newPosition.x += translation.x;
         newPosition.y += translation.y;
 
-        bool valid = board.IsValidPosition(this, newPosition);
+        bool valid = board.IsValidPosition(this.cells, newPosition);
 
         // Enregistrer le mouvement uniquement si la nouvelle position est valide
         if (valid)

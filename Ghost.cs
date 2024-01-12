@@ -7,7 +7,7 @@ public class Ghost : MonoBehaviour
     public Board mainBoard;
     public Piece trackingPiece;
 
-    // Tilemap pour afficher le fantôme et les informations de position des cellules.
+    // Tilemap pour afficher le fantï¿½me et les informations de position des cellules.
     public Tilemap tilemap { get; private set; }
     public Vector3Int[] cells { get; private set; }
     public Vector3Int position { get; private set; }
@@ -21,16 +21,16 @@ public class Ghost : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Mise à jour du fantôme 
-        Clear();   // Efface le fantôme précédent.
-        Copy();    // Copie la position des cellules de la pièce suivie.
-        Drop();    // Calcule position du fantôme.
-        Set();     // Le place à la nouvelle position.
+        // Mise ï¿½ jour du fantï¿½me 
+        Clear();   // Efface le fantï¿½me prï¿½cï¿½dent.
+        Copy();    // Copie la position des cellules de la piï¿½ce suivie.
+        Drop();    // Calcule position du fantï¿½me.
+        Set();     // Le place ï¿½ la nouvelle position.
     }
 
     private void Clear()
     {
-        // Efface les tile du fantôme de la tilemap.
+        // Efface les tile du fantï¿½me de la tilemap.
         for (int i = 0; i < cells.Length; i++)
         {
             Vector3Int tilePosition = cells[i] + position;
@@ -40,7 +40,7 @@ public class Ghost : MonoBehaviour
 
     private void Copy()
     {
-        // Copie les cellules de la pièce suivie dans le fantôme.
+        // Copie les cellules de la piï¿½ce suivie dans le fantï¿½me.
         for (int i = 0; i < cells.Length; i++)
         {
             cells[i] = trackingPiece.cells[i];
@@ -49,7 +49,7 @@ public class Ghost : MonoBehaviour
 
     private void Drop()
     {
-        // Calcule la position la plus basse où le fantôme peut être placé sans collision.
+        // Calcule la position la plus basse oï¿½ le fantï¿½me peut ï¿½tre placï¿½ sans collision.
         Vector3Int position = trackingPiece.position;
 
         int current = position.y;
@@ -62,7 +62,7 @@ public class Ghost : MonoBehaviour
         {
             position.y = row;
 
-            if (mainBoard.IsValidPosition(trackingPiece, position))
+            if (mainBoard.IsValidPosition(trackingPiece.cells, position))
             {
                 this.position = position;
             }
@@ -77,7 +77,7 @@ public class Ghost : MonoBehaviour
 
     private void Set()
     {
-        // Place le fantôme à la position calculée.
+        // Place le fantï¿½me ï¿½ la position calculï¿½e.
         for (int i = 0; i < cells.Length; i++)
         {
             Vector3Int tilePosition = cells[i] + position;
